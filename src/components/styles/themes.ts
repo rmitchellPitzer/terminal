@@ -90,13 +90,29 @@ const theme: Themes = {
     name: "ubuntu",
     colors: {
       body: "#2D0922",
-      scrollHandle: "#F47845",
-      scrollHandleHover: "#E65F31",
+      scrollHandle: "#353748",
+      scrollHandleHover: "#4D4F63",
       primary: "#80D932",
       secondary: "#80D932",
       text: {
         100: "#FFFFFF",
         200: "#E1E9CC",
+        300: "#CDCDCD",
+      },
+    },
+  },
+  catppuccin: {
+    id: "T_007",
+    name: "catppuccin",
+    colors: {
+      body: "#1E1E2E",
+      scrollHandle: "#353748",
+      scrollHandleHover: "#4D4F63",
+      primary: "#89DCEB",
+      secondary: "#A6E3A1",
+      text: {
+        100: "#CDD6F4",
+        200: "#BAC2DE",
         300: "#CDCDCD",
       },
     },

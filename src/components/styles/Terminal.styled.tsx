@@ -1,11 +1,11 @@
 import styled from "styled-components";
 
 export const Wrapper = styled.div`
-  padding: 1.25rem;
+  padding: 2.3rem;
   padding-top: 0.75rem;
-
   display: flex;
   flex-direction: column-reverse;
+  height: calc(100vh - 2rem - 60px);
   max-height: calc(100vh - 2rem);
   overflow-y: auto;
 `;
@@ -20,32 +20,49 @@ export const Empty = styled.div`
 `;
 
 export const MobileSpan = styled.span`
-  line-height: 1.5rem;
+  line-height: 45px;
   margin-right: 0.75rem;
-
-  @media (min-width: 550px) {
-    display: none;
-  }
 `;
 
 export const MobileBr = styled.br`
-  @media (min-width: 550px) {
+  @media (min-width: 927px) {
     display: none;
   }
 `;
 
 export const Form = styled.form`
-  @media (min-width: 550px) {
-    display: flex;
-  }
+  display: flex;
+  flex-direction: row;
+  align-content: flex-start;
+  width: 100%;
+  flex-wrap: wrap;
 `;
 
 export const Input = styled.input`
-  flex-grow: 1;
+  position: absolute;
+  border: none;
+  z-index: 1;
+  top: 0;
+  left: 30px;
+  line-height: 1.15;
+  padding-inline: 2px;
+  padding-block: 1px;
+  width: calc(100% - 30px);  
+`;
 
-  @media (max-width: 550px) {
-    min-width: 85%;
-  }
+
+export const Suggestion = styled.div`
+  position: absolute;
+  top: 0;
+  left: 30px;
+  z-Index: 0; 
+  line-height: 1.15;
+  overflow: hidden;
+  padding-inline: 2px;
+  padding-block: 1px;
+  color: #7F849C;
+  width: calc(100% - 30px);  
+
 `;
 
 export const Hints = styled.span`

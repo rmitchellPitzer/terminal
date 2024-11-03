@@ -1,9 +1,10 @@
-import { User, WebsiteName, Wrapper } from "./styles/TerminalInfo.styled";
+import { CatBlue, CatOrange, CatRed, Wrapper } from "./styles/TerminalInfo.styled";
 
 const TermInfo = () => {
   return (
     <Wrapper>
-      <User>visitor</User>@<WebsiteName>terminal.satnaing.dev</WebsiteName>:~$
+      <CatBlue>visitor</CatBlue> <CatRed>~Portfolio/home</CatRed> <CatOrange>git:(RyderThe.dev)</CatOrange>:
+      {/* visitor ~Portfolio/home git:(Ryder):  */}
     </Wrapper>
   );
 };

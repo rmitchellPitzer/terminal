@@ -26,8 +26,11 @@ const GlobalStyle = createGlobalStyle<{ theme: DefaultTheme }>`
   }
 
   body {
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: 'Space Mono', monospace, "Work Sans";
     font-weight: 500;
+    // added
+    font-size: 2rem;
+    line-height: 2.5rem;
     background-color: ${({ theme }) => theme.colors?.body};
     color: ${({ theme }) => theme.colors?.text[100]};
   }
