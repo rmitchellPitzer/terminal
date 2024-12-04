@@ -4,183 +4,394 @@ import { termContext } from "../Terminal";
 
 // Custom function to parse content into parts (ignoring tags for typing)
 const parseContent = (text) => {
-    const parts = [];
-    const combinedRegex = /<color:(#\w+|[a-zA-Z]+)>(.*?)<\/color>|!\[(.*?)\]\((.*?)\)|!!\[(.*?)\]\((.*?)\)(\{color:(#\w+|[a-zA-Z]+)\})?/g;
-    let lastIndex = 0;
-    let match;
+  text = text.replace(/\n/g, '');
 
-    while ((match = combinedRegex.exec(text)) !== null) {
-        const [fullMatch, colorCode, coloredText, altText, imgSrc, linkText, linkHref, linkColorWrapper, linkColor] = match;
-        const matchIndex = match.index;
+  const parts = [];
+  let match;
+  const combinedRegex = /<text(?:\sfont:(\w+))?(?:\ssize:(\d+px|small|medium|large))?(?:\scolor:(#\w+|[a-zA-Z]+))?(?:\seffect:(bold|italic|underline))?>(.*?)<\/text>|<link(?:\shref="([^"]+)")?(?:\sfont:(\w+))?(?:\ssize:(\d+px|small|medium|large))?(?:\scolor:(#\w+|[a-zA-Z]+))?(?:\seffect:(bold|italic|underline))?>(.*?)<\/link>|<image\s+src:"([^"]+)"(?:\s+href:"([^"]+)")?>(.*?)<\/image>|!!\[(.*?)\]\((.*?)\)(\{color:(#\w+|[a-zA-Z]+)\})?|<br>|<jsx>(.*?)<\/jsx>/g;
+;
+  
+  let lastIndex = 0;
+  while ((match = combinedRegex.exec(text)) !== null) {
+    const [
+      fullMatch, fontFamilyText, sizeText, colorText, effectText, contentText, 
+      hrefLink, fontFamilyLink, sizeLink, colorLink, effectLink, contentLink,
+      imgSrc, imgHref, altText, linkText, linkHref, linkColorWrapper, linkColor,
+      jsxContent
+    ] = match;
 
-        // Push plain text before the match
-        if (matchIndex > lastIndex) {
-            parts.push({ type: 'text', content: text.slice(lastIndex, matchIndex), color: null });
-        }
+    const matchIndex = match.index;
 
-        // Handle color match
-        if (coloredText !== undefined) {
-            parts.push({ type: 'text', content: coloredText, color: colorCode });
-        }
-
-        // Handle image match
-        if (imgSrc !== undefined || altText !== undefined) {
-            parts.push({ type: 'image', src: imgSrc || '', alt: altText || '' }); // Ensure altText is included
-        }
-
-        // Handle link match (with optional color)
-        if (linkText !== undefined) {
-            parts.push({ type: 'link', content: linkText, href: linkHref, color: linkColor || null });
-        }
-
-        // Update lastIndex to move past the current match
-        lastIndex = matchIndex + fullMatch.length;
+    // Push plain text before the match
+    if (matchIndex > lastIndex) {
+      parts.push({ type: 'text', content: text.slice(lastIndex, matchIndex), color: null });
     }
 
-    // Push remaining text after the last match
-    if (lastIndex < text.length) {
-        parts.push({ type: 'text', content: text.slice(lastIndex), color: null });
+    // Handle <text> tag
+    if (contentText !== undefined) {
+      parts.push({
+        type: 'text',
+        content: contentText,
+        font: fontFamilyText || 'inherit',
+        size: sizeText || 'inherit',
+        color: colorText || 'inherit',
+        effect: effectText || 'none',
+      });
     }
 
-    return parts;
+    // Handle <link> tag
+    if (contentLink !== undefined) {
+      parts.push({
+        type: 'link',
+        content: contentLink,
+        href: hrefLink,
+        font: fontFamilyLink || 'inherit',
+        size: sizeLink || 'inherit',
+        color: colorLink || 'blue', // Default link color
+        effect: effectLink || 'none',
+      });
+    }
+
+    // Handle image match
+    if (imgSrc !== undefined) {
+      parts.push({ type: 'image', src: imgSrc, alt: altText, href: imgHref });
+    }
+
+    // Handle link match
+    if (linkText !== undefined) {
+      parts.push({ type: 'link', content: linkText, href: linkHref, color: linkColor || null });
+    }
+
+    // Handle line break
+    if (fullMatch === '<br>') {
+      parts.push({ type: 'lineBreak' });
+    }
+
+    // Handle JSX match
+    if (jsxContent !== undefined) {
+      parts.push({ type: 'jsx', content: jsxContent });
+    }
+
+    // Update lastIndex to move past the current match
+    lastIndex = matchIndex + fullMatch.length;
+  }
+
+  // Push remaining text after the last match
+  if (lastIndex < text.length) {
+    parts.push({ type: 'text', content: text.slice(lastIndex), color: null });
+  }
+// console.log("PARTS IS")
+// console.log(parts)
+  return parts;
 };
+
+
 
   
 // Your existing `parseContent` function remains unchanged
 
 const Line = ({ content, id }) => {
   const { removeFromRendering, rendering } = useContext(termContext);
-  if (!rendering.includes(id.id)) {
-    const parts = parseContent(content); // Parse the content
-    return (
-      <div>
-        <p>
-          {parts.map((part, idx) =>
-            part.type === 'text' ? (
-              <span key={idx} style={{ color: part.color || 'inherit' }}>
-                {part.content}
-              </span>
-            ) : part.type === 'image' ? (
-              <a href={part.src} style={{ display: 'block', maxWidth: '150px' }} target="_blank" rel="noreferrer">
-                <img
-                  key={idx}
-                  src={part.src}
-                  alt={part.alt} // Set the alt text
-                  style={{ maxWidth: '200px', padding: '20px', margin: '0px', verticalAlign: 'middle', borderRadius: '15px' }}
-                />
-              </a>
-            ) : part.type === 'link' ? (
-              <LinkTest>
-                <a
-                  key={idx}
-                  href={part.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ color: part.color || 'blue', transitionDuration: '200' }} // Apply color to the link if specified
-                >
-                  {part.content}
-                </a>
-              </LinkTest>
-            ) : null
-          )}
-        </p>
-      </div>
-    );
-  }
-
   const [displayedContent, setDisplayedContent] = useState([]); // Rendered content
-  const [typingIndex, setTypingIndex] = useState(0); // Current character index
-  const [currentPartIndex, setCurrentPartIndex] = useState(0); // Current part (text, image, link)
-  const [charInCurrentPart, setCharInCurrentPart] = useState(0); // Character index within the current part
+  const [currentPartIndex, setCurrentPartIndex] = useState(0); // Current part index
+  const [charInCurrentPart, setCharInCurrentPart] = useState(0); // Character index in current part
 
-  const parts = parseContent(content); // Parse the content
+  const parts = parseContent(content); // Parse content
+
+  // if (!rendering.includes(id.id)) {
+  //   const parts = parseContent(content); // Parse the content
+  //   // console.log("PARSED CONTENT IS ")
+  //   // console.log(parts)
+  //   return (
+  //     // <div style={{cursor: "pointer"}} onClick={() => window.open({href}, '_self')}>
+  //     <div>
+  //       <p>
+  //         {parts.map((part, idx) => {
+  //           if (part.type === 'text') {
+  //             return (
+  //               <span
+  //                 key={idx}
+  //                 style={{
+  //                   color: part.color || 'inherit',
+  //                   fontSize: part.size || 'inherit',
+  //                   fontFamily: part.font || 'inherit',
+  //                   fontWeight: part.effect === 'bold' ? 'bold' : 'normal',
+  //                   fontStyle: part.effect === 'italic' ? 'italic' : 'normal',
+  //                   textDecoration: part.effect === 'underline' ? 'underline' : 'none',
+  //                 }}
+  //               >
+  //                 {part.content}
+  //               </span>
+  //             );
+  //           } else if (part.type === 'link') {
+  //             return (
+  //               <LinkTest key={idx}>
+  //                 <a
+  //                   href={part.href}
+  //                   target="_blank"
+  //                   rel="noopener noreferrer"
+  //                   style={{ color: part.color || 'blue', transitionDuration: '200ms' }} // Apply color to the link if specified
+  //                 >
+  //                   {part.content}
+  //                 </a>
+  //               </LinkTest>
+  //             );
+  //           } else if (part.type === 'image') {
+  //             return (
+  //               <a
+  //                 key={idx}
+  //                 href={part.src}
+  //                 style={{ display: 'block', maxWidth: '150px' }}
+  //                 target="_blank"
+  //                 rel="noreferrer"
+  //               >
+  //                 <img
+  //                   src={part.src}
+  //                   alt={part.alt} // Set the alt text
+  //                   style={{ maxWidth: '150px', margin: '10px', verticalAlign: 'middle', borderRadius: '15px' }}
+  //                 />
+  //               </a>
+  //             );
+  //           } else if (part.type === 'lineBreak') {
+  //             return <br key={idx} />;
+  //           } else if (part.type === 'jsx') {
+  //             return (
+  //               <div key={idx} dangerouslySetInnerHTML={{ __html: part.content }} />
+  //             );
+  //           } else {
+  //             return null;
+  //           }
+  //         })}
+  //       </p>
+  //     </div>
+  //   );
+  // }
+
+
+
+
+
   useEffect(() => {
-    if (currentPartIndex < parts.length) {
+    if (!rendering.includes(id.id)){
+      return
+    }
+    const interval = setInterval(() => {
+      if (currentPartIndex == parts.length) {
+        clearInterval(interval); // Stop interval when all parts are rendered
+        removeFromRendering(id.id); // Trigger unmount logic
+        clearInterval(interval);
+        return
+      }
+      // console.log("PARTS IS")
+      // console.log(currentPartIndex, parts.length)
       const currentPart = parts[currentPartIndex];
-
       if (currentPart.type === 'text') {
-        const { content, color } = currentPart;
-
-        if (charInCurrentPart < content.length) {
-          const nextChar = content[charInCurrentPart];
-
-          setDisplayedContent((prev) => [
-            ...prev,
-            { type: 'text', content: nextChar, color },
-          ]);
-
-          setCharInCurrentPart(charInCurrentPart + 1); // Move to next character
-        } else {
-          setCurrentPartIndex(currentPartIndex + 1); // Move to the next part (image, link, etc.)
-          setCharInCurrentPart(0); // Reset for the next part
-        }
-      } else if (currentPart.type === 'image') {
-        setDisplayedContent((prev) => [
-          ...prev,
-          { type: 'image', src: currentPart.src, alt: currentPart.alt },
-        ]);
-        setCurrentPartIndex(currentPartIndex + 1); // Move to next part after image
-      } else if (currentPart.type === 'link') {
+        // Append next character of the current text part
+        const nextChar = currentPart.content[charInCurrentPart];
         setDisplayedContent((prev) => [
           ...prev,
           {
-            type: 'link',
-            content: currentPart.content,
-            href: currentPart.href,
-            color: currentPart.color,
+            type: 'text',
+            content: nextChar,
+            color: currentPart.color || 'inherit',
+            font: currentPart.font || 'inherit',
+            size: currentPart.size || 'inherit',
+            effect: currentPart.effect || 'none',
           },
         ]);
-        setCurrentPartIndex(currentPartIndex + 1); // Move to next part after link
-      }
-    } 
-    // else {
-    //   removeFromRendering(id.id); // Run this once the entire content has been displayed
-    // }
-  }, [typingIndex]);
+        setCharInCurrentPart((prev) => prev + 1);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTypingIndex((prev) => prev + 1); // Progress typing animation character-by-character
-    }, 15); // Adjust typing speed (100ms per character)
+        // Move to the next part if the current text is complete
+        if (charInCurrentPart + 1 >= currentPart.content.length) {
+          setCurrentPartIndex((prev) => prev + 1);
+          setCharInCurrentPart(0);
+        }
+      } else {
+        // Directly append non-text parts (link, image, etc.)
+        setDisplayedContent((prev) => [...prev, currentPart]);
+        setCurrentPartIndex((prev) => prev + 1);
+      }
+    }, 15); // Typing speed (15ms per character)
 
     return () => {
-      console.log("CLEARING INTERVAL AND REMOVING")
-      clearInterval(interval); // Clean up interval when component unmounts
-      removeFromRendering(id.id); // Run this function on unmount
+      clearInterval(interval); // Cleanup interval on unmount
     };
-  }, []);
+  }, [currentPartIndex, charInCurrentPart, parts, id.id, removeFromRendering]);
 
   return (
     <div>
       <p>
-        {displayedContent.map((part, idx) =>
-          part.type === 'text' ? (
-            <span key={idx} style={{ color: part.color || 'inherit' }}>
-              {part.content}
-            </span>
-          ) : part.type === 'image' ? (
-            <a href={part.src} style={{ display: 'block', maxWidth: '150px' }} target="_blank" rel="noreferrer">
-              <img
+        {rendering.includes(id.id) ? 
+         <>{displayedContent.map((part, idx) => {
+          if (part.type === 'text') {
+            return (
+              <span
                 key={idx}
-                src={part.src}
-                alt={part.alt} // Set the alt text
-                style={{ maxWidth: '150px', margin: '10px', verticalAlign: 'middle', borderRadius: '15px' }}
-              />
-            </a>
-          ) : part.type === 'link' ? (
-            <LinkTest>
+                style={{
+                  color: part.color,
+                  fontSize: part.size,
+                  fontFamily: part.font,
+                  fontWeight: part.effect === 'bold' ? 'bold' : 'normal',
+                  fontStyle: part.effect === 'italic' ? 'italic' : 'normal',
+                  textDecoration: part.effect === 'underline' ? 'underline' : 'none',
+                }}
+              >
+                {part.content}
+              </span>
+            );
+          } else if (part.type === 'link') {
+            return (
+              <LinkTest key={idx}>
+                <a
+                  href={part.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: part.color || 'blue', transitionDuration: '200ms' }}
+                >
+                  {part.content}
+                </a>
+              </LinkTest>
+            );
+          // } else if (part.type === 'image') {
+          //   return (
+          //     <a
+          //       key={idx}
+          //       href={part.href}
+          //       target="_blank"
+          //       rel="noreferrer"
+          //       style={{ display: 'block', maxWidth: '150px' }}
+          //     >
+          //       <img
+          //         src={part.src}
+          //         alt={part.alt}
+          //         style={{ maxWidth: '150px', margin: '10px', borderRadius: '15px' }}
+          //       />
+          //     </a>
+          //   );
+          } else if (part.type === 'lineBreak') {
+            return <br key={idx} />;
+          } else if (part.type === 'jsx') {
+            return (
+              <div key={idx} dangerouslySetInnerHTML={{ __html: part.content }} />
+            );
+          } else {
+            return null;
+          }
+        })}</> 
+        : 
+        <>{parts.map((part, idx) => {
+          if (part.type === 'text') {
+            return (
+              <span
+                key={idx}
+                style={{
+                  color: part.color,
+                  fontSize: part.size,
+                  fontFamily: part.font,
+                  fontWeight: part.effect === 'bold' ? 'bold' : 'normal',
+                  fontStyle: part.effect === 'italic' ? 'italic' : 'normal',
+                  textDecoration: part.effect === 'underline' ? 'underline' : 'none',
+                }}
+              >
+                {part.content}
+              </span>
+            );
+          } else if (part.type === 'link') {
+            return (
+              <LinkTest key={idx}>
+                <a
+                  href={part.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: part.color || 'blue', transitionDuration: '200ms' }}
+                >
+                  {part.content}
+                </a>
+              </LinkTest>
+            );
+          } else if (part.type === 'image') {
+            return (
               <a
                 key={idx}
                 href={part.href}
                 target="_blank"
-                rel="noopener noreferrer"
-                style={{ color: part.color || 'blue', transitionDuration: '200' }} // Apply color to the link if specified
+                rel="noreferrer"
+                style={{ display: 'block', maxWidth: '150px' }}
+              >
+                <img
+                  src={part.src}
+                  alt={part.alt}
+                  style={{ maxWidth: '200px', margin: '10px 0px', borderRadius: '20px' }}
+                />
+              </a>
+            );
+          } else if (part.type === 'lineBreak') {
+            return <br key={idx} />;
+          } else if (part.type === 'jsx') {
+            return (
+              <div key={idx} dangerouslySetInnerHTML={{ __html: part.content }} />
+            );
+          } else {
+            return null;
+          }
+        })}</>}
+
+        {/* {displayedContent.map((part, idx) => {
+          if (part.type === 'text') {
+            return (
+              <span
+                key={idx}
+                style={{
+                  color: part.color,
+                  fontSize: part.size,
+                  fontFamily: part.font,
+                  fontWeight: part.effect === 'bold' ? 'bold' : 'normal',
+                  fontStyle: part.effect === 'italic' ? 'italic' : 'normal',
+                  textDecoration: part.effect === 'underline' ? 'underline' : 'none',
+                }}
               >
                 {part.content}
+              </span>
+            );
+          } else if (part.type === 'link') {
+            return (
+              <LinkTest key={idx}>
+                <a
+                  href={part.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: part.color || 'blue', transitionDuration: '200ms' }}
+                >
+                  {part.content}
+                </a>
+              </LinkTest>
+            );
+          } else if (part.type === 'image') {
+            return (
+              <a
+                key={idx}
+                href={part.src}
+                target="_blank"
+                rel="noreferrer"
+                style={{ display: 'block', maxWidth: '150px' }}
+              >
+                <img
+                  src={part.src}
+                  alt={part.alt}
+                  style={{ maxWidth: '150px', margin: '10px', borderRadius: '15px' }}
+                />
               </a>
-            </LinkTest>
-          ) : null
-        )}
+            );
+          } else if (part.type === 'lineBreak') {
+            return <br key={idx} />;
+          } else if (part.type === 'jsx') {
+            return (
+              <div key={idx} dangerouslySetInnerHTML={{ __html: part.content }} />
+            );
+          } else {
+            return null;
+          }
+        })} */}
       </p>
     </div>
   );

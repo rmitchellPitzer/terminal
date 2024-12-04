@@ -4,6 +4,23 @@ import { normalize } from "styled-normalize";
 const GlobalStyle = createGlobalStyle<{ theme: DefaultTheme }>`
   ${normalize}
   
+
+  @font-face {
+
+  font-family: 'DeterminationMono';
+
+  src: url('../../media/DeterminationMono.woff') format('woff');
+
+}
+
+@font-face {
+
+  font-family: 'ComicMono';
+
+  src: url('../../media/ComicMono.woff') format('woff');
+
+}
+
   *, ::before, ::after {
     border-width: 0;
     border-style: solid;
@@ -26,10 +43,10 @@ const GlobalStyle = createGlobalStyle<{ theme: DefaultTheme }>`
   }
 
   body {
-    font-family: 'Space Mono', monospace, "Work Sans";
+    font-family: 'Space Mono', monospace, "Work Sans", "DeterminationMono", "ComicMono";
     font-weight: 500;
     // added
-    font-size: 2rem;
+    font-size: 1.65rem;
     line-height: 2.5rem;
     background-color: ${({ theme }) => theme.colors?.body};
     color: ${({ theme }) => theme.colors?.text[100]};
@@ -61,6 +78,84 @@ const GlobalStyle = createGlobalStyle<{ theme: DefaultTheme }>`
   input[type=text]:focus-visible {
     outline: none;
   }
+
+
+  
+  input[type=range] {
+  -webkit-appearance: none;
+  margin: 18px 0;
+  width: 250px;
+}
+input[type=range]:focus {
+  outline: none;
+}
+input[type=range]::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 3px;
+  cursor: pointer;
+  background: #9399B2;
+  border-radius: 2px;
+}
+input[type=range]::-webkit-slider-thumb {
+  height: 22px;
+  width: 22px;
+  border-radius: 3px;
+  background: #FAB387;
+  cursor: pointer;
+  border-radius: 200px;
+  -webkit-appearance: none;
+  margin-top: -10px;
+}
+input[type=range]:focus::-webkit-slider-runnable-track {
+  background: #868da6;
+}
+input[type=range]::-moz-range-track {
+  width: 100%;
+  height: 3px;
+  cursor: pointer;
+  background: #868da6;
+  border-radius: 2px;
+}
+input[type=range]::-moz-range-thumb {
+  height: 22px;
+  width: 22px;
+  border-radius: 3px;
+  background: none;
+  cursor: pointer;
+}
+input[type=range]::-ms-track {
+  width: 100%;
+  height: 3px;
+  cursor: pointer;
+  background: transparent;
+  border-color: transparent;
+  color: transparent;
+}
+input[type=range]::-ms-fill-lower {
+  background: #9399B2;
+  border-radius: 3px;
+}
+input[type=range]::-ms-fill-upper {
+  background: #9399B2;
+}
+
+input[type=range]::-ms-thumb {
+  height: 22px;
+  width: 22px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+input[type=range]:focus::-ms-fill-lower {
+  background: #9399B2;
+}
+input[type=range]:focus::-ms-fill-upper {
+  background: #9399B2;
+}
+
+
+
+
+
 
   .sr-only {
     position: absolute;

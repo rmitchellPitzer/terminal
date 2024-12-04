@@ -3,7 +3,7 @@ import { CatBlue, CatOrange, CatRed, WrapperCommand } from "./styles/TerminalInf
 const TermInfoCommand = () => {
   return (
     <WrapperCommand>
-      <CatBlue>visitor</CatBlue> <CatRed>~Portfolio/home</CatRed> <CatOrange>git:(RyderThe.dev)</CatOrange>:
+      <CatBlue>visitaaaor</CatBlue> <CatRed>~Portfolio/home</CatRed> <CatOrange>git:(RyderThe.dev)</CatOrange>:
       {/* visitor ~Portfolio/home git:(Ryder):  */}
     </WrapperCommand>
   );

@@ -18,6 +18,7 @@ import {
   MobileBr,
   MobileSpan,
   Suggestion,
+  TermContainer,
   Wrapper,
 } from "./styles/Terminal.styled";
 import { argTab } from "../utils/funcs";
@@ -27,6 +28,13 @@ import { possibleCmds } from "../utils/commands";
 import LeftMenu from "./LeftMenu";
 import { CatBlue, CatOrange, CatRed } from "./styles/TerminalInfo.styled";
 import RightMenu from "./RightMenu";
+import Status from "./Status";
+import GuestBook from "./GuestBook";
+import { MenuContainer } from "./styles/MenuStyle";
+import Listening from "./Listening";
+import Blog from "./Blog";
+import { useLocation, useNavigate } from 'react-router-dom';
+
 type Command = {
   cmd: string;
   desc: string;
@@ -35,6 +43,15 @@ type Command = {
 
 export const commands: Command = [
   { cmd: "test", desc: "testing for debugging", tab: 7 },
+  { cmd: "work", desc: "display prior work", tab: 7 },
+  { cmd: "about", desc: "display information about me", tab: 6 },
+  { cmd: "contact", desc: "display contact information", tab: 4 },
+  { cmd: "projects", desc: "display projects information", tab: 3 },
+  { cmd: "status", desc: `display ${import.meta.env.VITE_FIRSTNAME}'s status`, tab: 5 },
+  { cmd: "guestbook", desc: "view guestbook", tab: 2 },
+  { cmd: "listening", desc: "view listening history", tab: 2 },
+  { cmd: "help", desc: "view possible commands", tab: 7 },
+
 ];
 
 // new types as part of changing how tabs work:
@@ -57,7 +74,7 @@ type CmdHistory = {
 }
 
 type Inputs = {
-  [id: number]: string[]
+  [id: number]: string
 }
 
 type NewHints = {
@@ -68,14 +85,37 @@ type Pointers = {
   [id: number]: number
 }
 
+type suggestion = {
+  suggestionText: string;
+  suggestionPointer: number;
+  suggestionsPossible: string[];
+}
+
+type Suggestions = {
+  [id: number]: suggestion
+}
+
 type Tab = { 
   name: string;
   color: string;
 }
 
-type TabNames = {
+type Tabs = {
   [id: number]: Tab
 }
+
+// type Tab = { 
+//   name: string;
+//   color: string;
+//   cmdHistory: NewCommand[];
+//   pointer: number;
+//   input: string;
+//   suggestion: string;
+// }
+
+// type Tabs = {
+//   [id: number]: Tab
+// }
 
 
 type Term = {
@@ -92,7 +132,8 @@ type Term = {
   pointers: Pointers;
   rendering: number[];
   commandIds: number;
-  tabNames: TabNames;
+  tabs: Tabs;
+  suggestions: Suggestions;
   removeFromRendering?: (id: number) => void;
   updateTabId?: (id: number) => void;
   menusActive: boolean[];
@@ -112,17 +153,55 @@ export const termContext = createContext<Term>({
   // this component needs is the commands.
   // each command needs to be read in from file, rendered, then 
 
+  // pointer for which tab is selected
   tabId: 0,
+  // dictionary for cmdhistory for a given tab
   cmdHistory: {0: []},
-  inputs: {0: []},
+  // dictionary for the inputs on a given tab
+  inputs: {0: "", 1: "", 2: "", 3: "", 4: "", 5: "", 6: ""},
+  // don't think i ever use hints but could be wrong
   hints: {0: []},
+  // dictionary for which command is currently being pointed to in a given tab.
   pointers: {0: -1},
-  rendering: [0,1],
+  // list of commandids that are rendering
+  rendering: [0,1,2,3,4,5,6],
+  // pointer for command ids
   commandIds: 2,
-  tabNames: {0: {name: "home", color: "#CBA6F7"},
-  1: {name: "work", color: "#EBA0AC"},
-  2: {name: "about", color: "#A6E3A1"},
-  3: {name: "contact", color: "#89B4FA"}},
+  // names for tabs.
+  suggestions: {
+    0: {suggestionText: "",
+      suggestionPointer: -1,
+      suggestionsPossible: []},
+    1: {suggestionText: "",
+      suggestionPointer: -1,
+      suggestionsPossible: []},
+    2: {suggestionText: "",
+      suggestionPointer: -1,
+      suggestionsPossible: []},
+    3: {suggestionText: "",
+      suggestionPointer: -1,
+      suggestionsPossible: []},
+    4: {suggestionText: "",
+      suggestionPointer: -1,
+      suggestionsPossible: []},
+
+    5: {suggestionText: "",
+      suggestionPointer: -1,
+      suggestionsPossible: []},
+
+    6: {suggestionText: "",
+      suggestionPointer: -1,
+      suggestionsPossible: []},
+  },
+  tabs: {0: {name: "home", color: "#CBA6F7"},
+  1: {name: "about", color: "#A6E3A1"},
+  2: {name: "work", color: "#EBA0AC"},
+  3: {name: "projects", color: "#89B4FA"},
+  4: {name: "contact", color: "#89B4FA"},
+  5: {name: "status", color: "#89B4FA"},
+  6: {name: "guestbook", color: "#89B4FA"},
+},
+  // array for which menus are active
   menusActive: [false, false],
   
 });
@@ -131,36 +210,57 @@ const Terminal = () => {
   const containerRef = useRef(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // State variables
-  const [inputVal, setInputVal] = useState("");
-  // const [cmdHistory, setCmdHistory] = useState<string[]>([]);
-
+  // old state variables, will probably have to remove at some point
   const [rerender, setRerender] = useState(false);
+  // const [inputVal, setInputVal] = useState("");
   const [hints, setHints] = useState<string[]>([]);
-  const [pointer, setPointer] = useState(-1);
+  // const [pointer, setPointer] = useState(-1);
+ // const [suggestions, setSuggestions] = useState<string[]>([""]); // Suggested command based on input
+  // const [suggestion, setSuggestion] = useState(''); // Suggested command based on input
+  // const [suggestionPointer, setSuggestionPointer] = useState(0); // Suggested command based on input
+
+
+
+  // State variables
   const [tabId, setTabId] = useState<number>(0);
   const [commandId, setCommandId] = useState<number>(2);
-  const [rendering, setRendering] = useState<number[]>([0, 1]);
-  const [tabNames, setTabNames] = useState<TabNames>({
-    0: {name: "home", color: "#CBA6F7"},
-    1: {name: "work", color: "#EBA0AC"},
-    2: {name: "about", color: "#A6E3A1"},
-    3: {name: "contact", color: "#89B4FA"}}
-  );
-
-
   const [menusActive, setMenusActive] = useState<boolean[]>([false, false])
 
-
-  // change back to default values later
-  const [suggestions, setSuggestions] = useState<string[]>([""]); // Suggested command based on input
-  const [suggestion, setSuggestion] = useState(''); // Suggested command based on input
-  const [suggestionPointer, setSuggestionPointer] = useState(0); // Suggested command based on input
-
-
-
-
-  // new state variables
+  const [inputs, setInputs] = useState<Inputs>({0: "", 1: "", 2: "", 3: "", 4: "", 5: "", 6: ""})
+  const [suggestions, setSuggestions] = useState<Suggestions>({
+    0: {suggestionText: "",
+      suggestionPointer: -1,
+      suggestionsPossible: []},
+    1: {suggestionText: "",
+      suggestionPointer: -1,
+      suggestionsPossible: []},
+    2: {suggestionText: "",
+      suggestionPointer: -1,
+      suggestionsPossible: []},
+    3: {suggestionText: "",
+      suggestionPointer: -1,
+      suggestionsPossible: []},
+    4: {suggestionText: "",
+    suggestionPointer: -1,
+    suggestionsPossible: []},
+    5: {suggestionText: "",
+    suggestionPointer: -1,
+    suggestionsPossible: []},
+    6: {suggestionText: "",
+    suggestionPointer: -1,
+    suggestionsPossible: []},
+  })
+  const [rendering, setRendering] = useState<number[]>([0,1,2,3,4,5,6,7]);
+  const [tabs, setTabs] = useState<Tabs>({
+    0: {name: "home", color: "#CBA6F7"},
+    1: {name: "about", color: "#EBA0AC"},
+    2: {name: "work", color: "#A6E3A1"},
+    3: {name: "projects", color: "#F38BA8"},
+    4: {name: "contact", color: "#89B4FA"},
+    5: {name: "status", color: "#FAB387"},
+    6: {name: "guestbook", color: "#F9E2AF"},
+},
+  );
   const [newCmdHistory, setNewCmdHistory] = useState<CmdHistory>({
     0: [{
       id: 0,
@@ -174,7 +274,7 @@ const Terminal = () => {
     }],
     1: [{
       id: 1,
-      input: "work",
+      input: "about",
       output: 
         [{
         type: "text",
@@ -184,7 +284,7 @@ const Terminal = () => {
     }],
     2: [{
       id: 2,
-      input: "about",
+      input: "work",
       output: 
         [{
         type: "text",
@@ -194,6 +294,16 @@ const Terminal = () => {
     }],
     3: [{
       id: 3,
+      input: "projects",
+      output: 
+        [{
+        type: "text",
+        content: "asdf",
+        color: "#fffff"
+      }],
+    }], 
+    4: [{
+      id: 4,
       input: "contact",
       output: 
         [{
@@ -202,9 +312,73 @@ const Terminal = () => {
         color: "#fffff"
       }],
     }], 
+    5: [{
+      id: 5,
+      input: "status",
+      output: 
+        [{
+        type: "text",
+        content: "asdf",
+        color: "#fffff"
+      }],
+    }], 
+    6: [{
+      id: 6,
+      input: "guestbook",
+      output: 
+        [{
+        type: "text",
+        content: "asdf",
+        color: "#fffff"
+      }],
+    }], 
+   
+    
 
   });
+  const [pointers, setPointers] = useState<Pointers>({0: -1, 1: -1, 2: -1, 3: -1, 4: -1, 5: -1, 6: -1}
+  );
 
+
+  const location = useLocation();
+  useEffect(() => {
+    // Fetch data or update state based on the new location
+    switch (location.pathname) {
+      case '/':
+        setTabId(0);
+        break;
+      case '/home':
+        setTabId(0);
+        break;
+      case '/about':
+        setTabId(1);
+        break;
+      case '/work':
+        setTabId(2);
+        break;
+      case '/projects':
+        setTabId(3);
+        break;
+      case '/contact':
+        setTabId(4);
+        break;
+      case '/status':
+        setTabId(5);
+        break;
+      case '/guestbook':
+        setTabId(6);
+        break;
+      default:
+        setTabId(0);
+    }
+      }, [location.pathname]); // Trigger effect when location changes
+ 
+
+
+  // new state variables
+
+
+  // finish this later
   const renderNewText = (inputval: string) => {
     // work on this later
     const id = commandId
@@ -225,7 +399,7 @@ const Terminal = () => {
   };
 
   const getNewCmdHistory = (inputVal: string, isClear?: boolean) => {
-    const updatedCmdHistory = newCmdHistory
+    const updatedCmdHistory = {... newCmdHistory}
     if (isClear){
       updatedCmdHistory[tabId] = []
       return updatedCmdHistory
@@ -235,17 +409,38 @@ const Terminal = () => {
     return updatedCmdHistory
   };
 
-  const updateInput = (inputVal: string) => {
-    setInputVal(inputVal)
-    setSuggestions([])
-    setSuggestion("")
-    setSuggestionPointer(-1)
-  }
+  
+
+  // const updateInput = (inputVal: string) => {
+  //   let newInputs = inputs;
+  //   setInputVal(inputVal)
+  //   setSuggestions([])
+  //   setSuggestion("")
+  //   setSuggestionPointer(-1)
+  // }
+
+  // const updateInputWithTabChange = (inputVal: string) => {
+  //   setInputVal(inputVal)
+  //   setSuggestions([])
+  //   setSuggestion("")
+  //   setSuggestionPointer(-1)
+  // }
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       setRerender(false);
-      setInputVal(e.target.value);
+      const newInputs = { ...inputs, [tabId]: e.target.value };
+      // const newPointers = { ...pointers };
+
+      // if (newPointers[tabId] != -1){
+      //   newPointers[tabId] = -1;
+      //   setPointers(newPointers)
+      // }
+      // const newInputs = inputs;
+      // newInputs[tabId] = (e.target.value)
+      // setInputs(newInputs)
+      // might need to remove this block here
+      // const newPointers = pointers;
       
 
       let matchingCommands: string[] = [];
@@ -254,35 +449,48 @@ const Terminal = () => {
           matchingCommands = [...matchingCommands, cmd];
         }
       });
-      setSuggestions(matchingCommands)
-      if (matchingCommands.includes(suggestion)){
-        setSuggestionPointer(matchingCommands.indexOf(suggestion))
+      const newSuggestions = { ...suggestions };
+      newSuggestions[tabId].suggestionsPossible = matchingCommands
+
+      if (matchingCommands.includes(suggestions[tabId].suggestionText)){
+        newSuggestions[tabId].suggestionPointer = matchingCommands.indexOf(suggestions[tabId].suggestionText)
       }
       else if (matchingCommands.length == 0){
-        setSuggestionPointer(-1)
-        setSuggestion("")
+        newSuggestions[tabId].suggestionPointer = -1
+        newSuggestions[tabId].suggestionText = ""
       }
       else{
-        setSuggestion(matchingCommands[0])
-        setSuggestionPointer(0)
+        newSuggestions[tabId].suggestionText = matchingCommands[0]
+        newSuggestions[tabId].suggestionPointer = 0
       }
-      if (e.target.value.length <= inputVal.length){
-        setSuggestionPointer(-1)
+      if (e.target.value.length <= inputs[tabId].length){
+        newSuggestions[tabId].suggestionPointer = -1
       }
+
+      setInputs(newInputs);
+      setSuggestions(newSuggestions);    
     },
-    [inputVal]
+    [inputs, suggestions, pointers, tabId]
   );
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     // setCmdHistory([inputVal, ...cmdHistory]);
-    setNewCmdHistory(getNewCmdHistory(inputVal))
-    setInputVal("");
+    // setInputVal("");
+    const newInputs = {... inputs};
+    newInputs[tabId] = ""
     // setRerender(true);
+    const newPointers = {... pointers};
+    pointers[tabId] = -1
+    const newSuggestions = {... suggestions};
+    newSuggestions[tabId].suggestionPointer = -1
+    newSuggestions[tabId].suggestionText = ""
+    setNewCmdHistory(getNewCmdHistory(inputs[tabId]))
+    setSuggestions(newSuggestions)
+    setPointers(newPointers);
+    setInputs(newInputs)
     setHints([]);
-    setPointer(-1);
-    setSuggestionPointer(-1)
-    setSuggestion("")
+
   };
 
   const clearHistory = () => {
@@ -295,43 +503,28 @@ const Terminal = () => {
     console.log(newMenu)
     setMenusActive(newMenu);
   };
+  const navigate = useNavigate();
 
   const updateTabId = (id: number) => {
-    setTabId(id)
-  } 
+    // setTabId(id)
+    navigate(tabs[id].name)
+   }
+    
+    
   const removeFromRendering = (id: number) => {
+    if (rendering.includes(id)){
     let renderCopy = rendering
     renderCopy = renderCopy.filter(function(item) {
         return item !== id
     })
     setRendering(renderCopy)
-  };
+  }};
 
-  // const pushTo = () => {
-  //   // setCmdHistory([]);
-  //   setHints([]);
-  // };
 
   // focus on input when terminal is clicked
   const handleDivClick = () => {
     inputRef.current && inputRef.current.focus();
   };
-
-  // come back later:
-
-  // const overlayRef = useRef(null);
-  // useEffect(() => {
-  //   if (inputRef.current && overlayRef.current) {
-  //     const targetRect = inputRef.current.getBoundingClientRect();
-
-  //     overlayRef.current.style.position = 'absolute';
-  //     overlayRef.current.style.top = `${targetRect.top}px`;
-  //     overlayRef.current.style.left = `${targetRect.left}px`;
-  //     overlayRef.current.style.width = `${targetRect.width}px`;
-  //     overlayRef.current.style.height = `${targetRect.height}px`;
-  //     overlayRef.current.style.paddingLeft = `18.5px`;
-  //   }
-  // }, []);
 
   useEffect(() => {
     document.addEventListener("click", handleDivClick);    return () => {
@@ -348,39 +541,29 @@ const Terminal = () => {
 
     // if Tab or Ctrl + I
     if (e.key === "Tab" || ctrlI) {
-     
-     
-      // THIS ENTIRE PART IS THE TAB/AUTOCOMPLETE FUNCTIONALITY!!
-     
       e.preventDefault();
-      if (!inputVal) return;
-      let tempPointer = suggestionPointer + 1
-      if (tempPointer == suggestions.length){
-        tempPointer = 0
+      if (!inputs[tabId]) return;
+
+      const newSuggestions = {... suggestions};
+      newSuggestions[tabId].suggestionPointer += 1
+      if (newSuggestions[tabId].suggestionPointer == newSuggestions[tabId].suggestionsPossible.length){
+        newSuggestions[tabId].suggestionPointer = 0
       }
-      setSuggestionPointer(tempPointer)
+      setSuggestions(newSuggestions)
     }
 
     if (e.key === "ArrowRight"){
       e.preventDefault();
-      setInputVal(suggestions[suggestionPointer])
-      setSuggestions([suggestions[suggestionPointer]])
+      const newInputs = {... inputs};
+      const newSuggestions = {... suggestions};
+      newInputs[tabId] = newSuggestions[tabId].suggestionsPossible[newSuggestions[tabId].suggestionPointer];
+      newSuggestions[tabId].suggestionsPossible = [newSuggestions[tabId].suggestionsPossible[newSuggestions[tabId].suggestionPointer]];
+      const newPointers = {... pointers};
+      newPointers[tabId] = -1;
+      setPointers(newPointers);
+      setInputs(newInputs)
+      setSuggestions(newSuggestions)
     }
-
-    // if (e.key === "Backspace") {
-    //   console.log("BACKSPACE HIT!!!")
-    //   setSuggestionPointer(-1)
-    //   setSuggestions([])
-    //   setSuggestion("")
-    // }
-
-
-
-    // OKAY DONE WITH IT!
-
-
-
-
 
     // if Ctrl + L
     if (ctrlL) {
@@ -389,34 +572,58 @@ const Terminal = () => {
 
     // Go previous cmd
     if (e.key === "ArrowUp") {
-      if (pointer >= newCmdHistory[tabId].length) return;
+      
+      const newSuggestions = {... suggestions};
+      newSuggestions[tabId].suggestionText = ""
+      newSuggestions[tabId].suggestionPointer = -1;
+      newSuggestions[tabId].suggestionsPossible = [""]
 
-      if (pointer + 1 === newCmdHistory[tabId].length) return;
 
-      setInputVal(newCmdHistory[tabId][pointer + 1].input);
-      setPointer(prevState => prevState + 1);
+      setSuggestions(newSuggestions)
+      const newPointers = {... pointers};
+      if (newPointers[tabId] >= newCmdHistory[tabId].length) return;
+
+      if (newPointers[tabId] + 1 === newCmdHistory[tabId].length) return;
+
+      const newInputs = {... inputs};
+      newInputs[tabId] = newCmdHistory[tabId][newPointers[tabId] + 1].input
+      setInputs(newInputs)
+      newPointers[tabId] += 1
+      // setInputVal(newCmdHistory[tabId][pointer + 1].input);
+      setPointers(newPointers);
       inputRef?.current?.blur();
+      console.log(newPointers[tabId])
     }
 
     // Go next cmd
     if (e.key === "ArrowDown") {
-      if (pointer < 0) return;
 
-      if (pointer === 0) {
-        setInputVal("");
-        setPointer(-1);
+      const newSuggestions = {... suggestions};
+      newSuggestions[tabId].suggestionText = ""
+      newSuggestions[tabId].suggestionPointer = -1;
+      newSuggestions[tabId].suggestionsPossible = [""]
+      setSuggestions(newSuggestions)
+      const newPointers = {... pointers};
+
+    
+      if (newPointers[tabId] < 0) return;
+      const newInputs = {... inputs};
+
+      if (newPointers[tabId] === 0) {
+        newPointers[tabId] = -1;
+        newInputs[tabId] = ""
+        setInputs(newInputs);
+        setPointers(newPointers);
         return;
       }
-
-      setInputVal(newCmdHistory[tabId][pointer - 1].input);
-      setPointer(prevState => prevState - 1);
+      newInputs[tabId] = newCmdHistory[tabId][newPointers[tabId] - 1].input;
+      setInputs(newInputs)
+      newPointers[tabId] -= 1
+      setPointers(newPointers);
+     
       inputRef?.current?.blur();
     }
   };
-
-  // const updateHistory(tabId: number) => {
-
-  // }
 
   // For caret position at the end
   useEffect(() => {
@@ -424,15 +631,7 @@ const Terminal = () => {
       inputRef?.current?.focus();
     }, 1);
     return () => clearTimeout(timer);
-  }, [inputRef, inputVal, pointer]);
-
-
-  // const formHeightRef = useRef<HTMLFormElement>(null);
-  // const [formHeight, setFormHeight] = useState(0);
-
-  // useEffect(() => {
-  //     setFormHeight(formHeightRef.current.getBoundingClientRect().height);
-  // }, []);
+  }, [inputRef, inputs[tabId], pointers[tabId]]);
 
 
   const contextValue = {
@@ -444,183 +643,79 @@ const Terminal = () => {
     removeFromRendering,
     tabId,
     cmdHistory: newCmdHistory,
-    inputs: inputVal,
+    inputs: inputs,
     rendering: rendering,
-    tabNames: tabNames,
+    tabs: tabs,
     menusActive: menusActive,
     updateTabId,
     updateMenusActive,
-    updateInput
+    // updateInput
   };
-  // useEffect(() => {
-  //   console.log(document.getElementById('formUsed')?.clientHeight)
-  // }, [])
-
-  // const [formHeight, setFormHeight] = useState(0);
-  // window.onresize = function () {
-  //       console.log(document.getElementById('formUsed')?.clientHeight)
-  //       setFormHeight(document.getElementById('formUsed')?.clientHeight)
-  // }
-
-
+ 
   return (
     <div style={{display: "flex", flexDirection: "row", width: "100%", overflow: "hidden"}}>
-     {menusActive[0] &&<termContext.Provider value={contextValue}>
+     {/* {menusActive[0] &&<termContext.Provider value={contextValue}>
     <LeftMenu />
-    </termContext.Provider>}
+    </termContext.Provider>} */}
 
     <div style={{display: "flex", flexDirection: "column", width: "100%"}}>
      <termContext.Provider value={contextValue}>
         <MenuBar />
       </termContext.Provider>
-    <Wrapper data-testid="terminal-wrapper" ref={containerRef}>
+    {/* <TermContainer> */}
+      <Wrapper data-testid="terminal-wrapper" ref={containerRef}>
+        <Form style={{width: menusActive[0] ? "calc(100% - 400px)" : "100%"}} id="formUsed" onSubmit={handleSubmit}>
+          <TermInfo /> 
+          <MobileBr />
 
-    {/* {suggestionPointer > -1 && ( */}
-        {/* <div> */}
-          {/* {hints.map(hCmd => ( */}
-            {/* <Hints key={suggestions[suggestionPointer]}>{suggestions[suggestionPointer]}</Hints> */}
-          {/* ))} */}
-        {/* </div> */}
-      {/* )} */}
-
-
-      {/* {hints.length > 1 && (
-        <div>
-          {hints.map(hCmd => (
-            <Hints key={hCmd}>{hCmd}</Hints>
-          ))}
-        </div>
-      )} */}
-      <Form id="formUsed" onSubmit={handleSubmit}>
-        <TermInfo /> 
-        <MobileBr />
-
-        <div style={{
-          position: "relative", 
-          flexShrink: "1",
-          flexGrow: "1",
-          whiteSpace: "nowrap",
-          minWidth: "200px",
-          marginBottom: "40px",
-          height: "0px",
-          display: "inline-block"
-        }}>
-             {/* {document.getElementById('formUsed')?.clientHeight > 41 && <MobileSpan>&#62;</MobileSpan> } */}
-             <MobileSpan>&#62;</MobileSpan>
-          <Input
-            title="terminal-input"
-            type="text"
-            id="terminal-input"
-            autoComplete="off"
-            spellCheck="false"
-            autoFocus
-            autoCapitalize="off"
-            ref={inputRef}
-            value={inputVal}
-            onKeyDown={handleKeyDown}
-            onChange={handleChange}
-            // style={{background: "transparent", color: "#F2CDCD"}}
-            style={{background: "transparent"}}
-
-          />
-            { suggestionPointer > -1 && (<Suggestion>{suggestions[suggestionPointer]}</Suggestion>)}
-        </div>
-      </Form>
-
-      {/* <Form onSubmit={handleSubmit}> */}
-        {/* <TermInfo />  */}
-        {/* <MobileBr /> */}
-
-        {/* <div style={{
-          position: "relative", 
-          flexShrink: "1",
-          flexGrow: "1",
-          whiteSpace: "nowrap",
-          minWidth: "100px",
-          width: "100%"
-      
-        }}> */}
-        {/* <MobileSpan>&#62;</MobileSpan> */}
-
-          {/* <Input
-            title="terminal-input"
-            type="text"
-            id="terminal-input"
-            autoComplete="off"
-            spellCheck="false"
-            autoFocus
-            autoCapitalize="off"
-            ref={inputRef}
-            value={inputVal}
-            onKeyDown={handleKeyDown}
-            onChange={handleChange}
-            style={{background: "transparent"}}
-          /> */}
-            {/* { suggestionPointer > -1 && (<Suggestion>{suggestions[suggestionPointer]}</Suggestion>)} */}
-        {/* </div> */}
-      {/* </Form> */}
-      
-
-      <termContext.Provider value={contextValue}>
-      <Commands />
-     {/* { */}
-        {/* // suggestionPointer > -1 &&  */}
-        {/* (<div style={{position: "absolute"}}> */}
-          {/* {suggestions[suggestionPointer]} */}
-          {/* about */}
-        {/* </div>) } */}
-
-</termContext.Provider>
-
-
-      {/* {newCmdHistory[tabId].map((cmdH, index) => {
-        const commandArray = _.split(_.trim(cmdH.input), " ");
-        const validCommand = _.find(commands, { cmd: commandArray[0] });
-        // const history = useContext(termContext);
-        // history.cmdHistory[tabId] = cmdHistory
-
-        const contextValue = {
-          arg: _.drop(commandArray),
-          history: newCmdHistory,
-          rerender,
-          index,
-          clearHistory,
-          removeFromRendering,
-          tabId,
-          cmdHistory: newCmdHistory,
-          inputs: inputVal,
-          rendering: rendering,
-        };
-        return (
-          <div key={_.uniqueId(`${cmdH}_`)}>
-            <div>
-              <TermInfo />
-              <MobileBr />
+          <div style={{
+            position: "relative", 
+            flexShrink: "1",
+            flexGrow: "1",
+            whiteSpace: "nowrap",
+            minWidth: "200px",
+            marginBottom: "40px",
+            height: "0px",
+            display: "inline-block"
+          }}>
               <MobileSpan>&#62;</MobileSpan>
-              <span data-testid="input-command">{cmdH.input}</span>
-            </div>
-            {validCommand ? (
-              <termContext.Provider value={contextValue}>
-                <Output index={index} cmd={commandArray[0]} id={cmdH.id} />
-              </termContext.Provider>
-            ) : cmdH.input === "" ? (
-              <Empty />
-            ) : (
-              <CmdNotFound data-testid={`not-found-${index}`}>
-                command not found: {cmdH.input}
-              </CmdNotFound>
-            )}
+            <Input
+              title="terminal-input"
+              type="text"
+              id="terminal-input"
+              autoComplete="off"
+              spellCheck="false"
+              autoFocus
+              autoCapitalize="off"
+              ref={inputRef}
+              value={inputs[tabId]}
+              onKeyDown={handleKeyDown}
+              onChange={handleChange}
+              style={{background: "transparent"}}
+
+            />
+              { suggestions[tabId].suggestionPointer > -1 && (<Suggestion>{
+              suggestions[tabId].suggestionsPossible[suggestions[tabId].suggestionPointer]}</Suggestion>)}
           </div>
-        );
-      })} */}
-      {/* <button onClick={ () => setTabId(tabId == 0? 1 : 0)} >press me to update tabId!</button> */}
-    </Wrapper>
+        </Form>
+        <termContext.Provider value={contextValue}>
+          <Commands />
+        </termContext.Provider>
+      </Wrapper>
+    {/* </TermContainer> */}
+    {menusActive[1] &&
+    <Status />
+    // <MenuContainer>
+    //     <Status/>
+    //   </MenuContainer>
+      }
     </div>
     
-    {menusActive[1] && <termContext.Provider value={contextValue}>
-    <RightMenu />
-    </termContext.Provider>}
-
+    {/* {menusActive[1] && <termContext.Provider value={contextValue}>
+      <RightMenu />
+    </termContext.Provider>} */}
+   
+    
     </div>
   );
 };

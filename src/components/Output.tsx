@@ -1,10 +1,16 @@
 /* eslint-disable react/display-name */
 import Test from "./commands/Test";
-
+import Work from "./commands/Work";
+import About from "./commands/About";
 import { OutputContainer, UsageDiv } from "./styles/Output.styled";
 import { termContext } from "./Terminal";
 import { memo, useContext } from "react";
-
+import Contact from "./commands/Contact";
+import Projects from "./commands/Projects";
+import Status from "./commands/Status";
+import GuestBook from "./commands/GuestBook";
+import Listening from "./commands/Listening";
+import Help from "./commands/Help";
 type Props = {
   index: number;
   cmd: string;
@@ -34,6 +40,15 @@ const renderCommand = (cmd) => {
     // case 'welcome': return <Welcome />;
     // case 'whoami': return <GeneralOutput>visitor</GeneralOutput>;
     case 'test': return <Test id={id} />;
+    case 'work': return <Work id={id} />;
+    case 'about': return <About id={id} />;
+    case 'contact': return <Contact id={id} />;
+    case 'projects': return <Projects id={id} />;
+    case 'status': return <Status id={id} />;
+    case 'guestbook': return <GuestBook id={id} />;
+    case 'listening': return <Listening id={id} />;
+    case 'help': return <Help id={id} />;
+
     default: return null;
   }
 };

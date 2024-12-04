@@ -22,7 +22,7 @@ import TermInfoCommand from './TermInfoCommand';
 
 const Commands = React.memo(() => {
     // const cmdHistory = zustandStore(state => state.cmdHistory);
-  const { cmdHistory, tabId } = useContext(termContext);
+  const { cmdHistory, tabId, menusActive } = useContext(termContext);
     return (
         <>
         {cmdHistory[tabId].map((cmdH, index) => {
@@ -32,10 +32,10 @@ const Commands = React.memo(() => {
             // const validCommand = _.find(commands, { cmd: commandArray[0] });
 
             return (
-            <div key={cmdH.id}>
+            <div style={{width: menusActive[0] ? "calc(100% - 400px)" : "100%"}} key={cmdH.id}>
                 <TermInfo />
                 {/* <MobileBr /> */}
-                <MobileSpan>&#62;</MobileSpan>
+                {/* <MobileSpan>&#62;</MobileSpan> */}
                 <CatLavender>{cmdH.input}</CatLavender>
                 {validCommand ? (
             //   <termContext.Provider value={cmdHistory:tabId}>

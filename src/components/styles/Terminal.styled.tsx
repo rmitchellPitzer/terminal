@@ -5,6 +5,7 @@ export const Wrapper = styled.div`
   padding-top: 0.75rem;
   display: flex;
   flex-direction: column-reverse;
+  justify-content: flex-start;
   height: calc(100vh - 2rem - 60px);
   max-height: calc(100vh - 2rem);
   overflow-y: auto;
@@ -20,7 +21,7 @@ export const Empty = styled.div`
 `;
 
 export const MobileSpan = styled.span`
-  line-height: 45px;
+  line-height: 2px;
   margin-right: 0.75rem;
 `;
 
@@ -34,7 +35,7 @@ export const Form = styled.form`
   display: flex;
   flex-direction: row;
   align-content: flex-start;
-  width: 100%;
+  width: calc(100% - 400px);
   flex-wrap: wrap;
 `;
 

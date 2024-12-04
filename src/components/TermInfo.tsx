@@ -1,9 +1,12 @@
 import { CatBlue, CatOrange, CatRed, Wrapper } from "./styles/TerminalInfo.styled";
+import { useLocation } from 'react-router-dom';
 
 const TermInfo = () => {
+  const location = useLocation();
+
   return (
     <Wrapper>
-      <CatBlue>visitor</CatBlue> <CatRed>~Portfolio/home</CatRed> <CatOrange>git:(RyderThe.dev)</CatOrange>:
+      <CatBlue>visitor</CatBlue> <CatRed>~Portfolio{location.pathname}</CatRed> <CatOrange>git:({import.meta.env.VITE_FIRSTNAME}The.dev)</CatOrange>:
       {/* visitor ~Portfolio/home git:(Ryder):  */}
     </Wrapper>
   );
