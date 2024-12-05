@@ -6,9 +6,9 @@ interface ImportMetaEnv {
   readonly VITE_LASTNAME: string
 
   readonly VITE_LASTFMAPIKEY: string,
-  readonly VITE_LASTFMUSERNAME: string
-
-
+  readonly VITE_LASTFMUSERNAME: string,
+  readonly VITE_GUESTBOOKURL: string,
+  readonly VITE_CORSPROXYURL: string,
 
 
   // more env variables...

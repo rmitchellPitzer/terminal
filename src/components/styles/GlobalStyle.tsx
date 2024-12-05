@@ -6,19 +6,18 @@ const GlobalStyle = createGlobalStyle<{ theme: DefaultTheme }>`
   
 
   @font-face {
-
   font-family: 'DeterminationMono';
-
-  src: url('../../media/DeterminationMono.woff') format('woff');
-
+  src: url('/media/DeterminationMono.woff') format('woff');
 }
 
 @font-face {
-
   font-family: 'ComicMono';
+  src: url('/media/ComicMono.woff') format('woff');
+}
 
-  src: url('../../media/ComicMono.woff') format('woff');
-
+@font-face {
+  font-family: 'Nitw';
+  src: url('/media/Nitw.woff') format('woff');
 }
 
   *, ::before, ::after {
@@ -43,7 +42,7 @@ const GlobalStyle = createGlobalStyle<{ theme: DefaultTheme }>`
   }
 
   body {
-    font-family: 'Space Mono', monospace, "Work Sans", "DeterminationMono", "ComicMono";
+    font-family: 'Space Mono', monospace, "Work Sans", "DeterminationMono", "ComicMono", "Nitw";
     font-weight: 500;
     // added
     font-size: 1.65rem;

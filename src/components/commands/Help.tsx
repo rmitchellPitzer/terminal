@@ -13,8 +13,8 @@ const Help: React.FC =  memo((id: number) => {
 
 
     for (let i = 0; i < commands.length; i++) {
-        console.log(commands[i])
-        inputText += commands[i].cmd + generateTabs(commands[i].tab) + commands[i].desc + "<br>"
+        // console.log(commands[i])
+        inputText += `<updateinput input:"${commands[i].cmd}" color:${commands[i].color}>${commands[i].cmd}</updateinput>`+ generateTabs(commands[i].tab) + commands[i].desc + "<br>"
     }
 
 

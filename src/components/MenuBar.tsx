@@ -13,7 +13,7 @@ import Webgui from '../media/WEBGUI.svg'
 import { MenuButton } from "./styles/MenuBarStyle";
 
   const MenuBar: React.FC =  memo(() => {
-    const { tabId, tabs, updateTabId, menusActive, updateMenusActive} = useContext(termContext);
+    const { tabId, tabs, updateTabId, menusActive, updateMenusActive, updateInput} = useContext(termContext);
     // console.log("THE ENTRIES ARE")
     // console.log(Object.entries(tabNames))
 //     const closeTab = async (url: string) => {
@@ -43,7 +43,7 @@ function toggleFullScreen() {
 } src={Close}></img>
 </button>
             <button style={{backgroundColor: "transparent"}}>
-            <img style={{width: "22px", height: "22px", margin: "auto"}} src={Minimize}></img>
+            <img onClick={() => updateInput("unfortunately there is no requestMinimize api :(")} style={{width: "22px", height: "22px", margin: "auto"}} src={Minimize}></img>
             </button>
             <button style={{backgroundColor: "transparent"}}>
             <img style={{width: "22px", height: "22px", margin: "auto"}} onClick={() => toggleFullScreen()} src={Fullscreen}></img>
@@ -88,7 +88,7 @@ function toggleFullScreen() {
 
     {/* webview website */}
     <button style={{ backgroundColor: "transparent", display: "flex", justifyContent: "center", alignItems: "center", marginRight: "0px", padding: "0" }}>
-        <a href={"https://google.com/"} style={{ display: 'block', maxWidth: '150px' }} target="_blank" rel="noreferrer">
+        <a href={"https://rydermitchell.com/"} style={{ display: 'block', maxWidth: '150px' }} target="_blank" rel="noreferrer">
             <img src={Webgui} alt="Webgui" />
         </a>
     </button>

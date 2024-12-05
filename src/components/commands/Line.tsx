@@ -1,25 +1,52 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { LinkTest } from '../styles/Test.styled';
 import { termContext } from "../Terminal";
-
+import { InputUpdate } from '../styles/Terminal.styled';
 // Custom function to parse content into parts (ignoring tags for typing)
 const parseContent = (text) => {
   text = text.replace(/\n/g, '');
 
   const parts = [];
   let match;
-  const combinedRegex = /<text(?:\sfont:(\w+))?(?:\ssize:(\d+px|small|medium|large))?(?:\scolor:(#\w+|[a-zA-Z]+))?(?:\seffect:(bold|italic|underline))?>(.*?)<\/text>|<link(?:\shref="([^"]+)")?(?:\sfont:(\w+))?(?:\ssize:(\d+px|small|medium|large))?(?:\scolor:(#\w+|[a-zA-Z]+))?(?:\seffect:(bold|italic|underline))?>(.*?)<\/link>|<image\s+src:"([^"]+)"(?:\s+href:"([^"]+)")?>(.*?)<\/image>|!!\[(.*?)\]\((.*?)\)(\{color:(#\w+|[a-zA-Z]+)\})?|<br>|<jsx>(.*?)<\/jsx>/g;
-;
+  const combinedRegex = /<text(?:\sfont:(\w+))?(?:\ssize:(\d+px|small|medium|large))?(?:\scolor:(#\w+|[a-zA-Z]+))?(?:\seffect:(bold|italic|underline))?>(.*?)<\/text>|<link(?:\shref="([^"]+)")?(?:\sfont:(\w+))?(?:\ssize:(\d+px|small|medium|large))?(?:\scolor:(#\w+|[a-zA-Z]+))?(?:\seffect:(bold|italic|underline))?>(.*?)<\/link>|<image\s+src:"([^"]+)"(?:\s+href:"([^"]+)")?>(.*?)<\/image>|<updateinput\s+input:"([^"]+)"(?:\sfont:(\w+))?(?:\ssize:(\d+px|small|medium|large))?(?:\scolor:(#\w+|[a-zA-Z]+))?>(.*?)<\/updateinput>|!!\[(.*?)\]\((.*?)\)(\{color:(#\w+|[a-zA-Z]+)\})?|<br>|<jsx>(.*?)<\/jsx>/g;
+
+
   
   let lastIndex = 0;
   while ((match = combinedRegex.exec(text)) !== null) {
+    // console.log(match)
     const [
-      fullMatch, fontFamilyText, sizeText, colorText, effectText, contentText, 
-      hrefLink, fontFamilyLink, sizeLink, colorLink, effectLink, contentLink,
-      imgSrc, imgHref, altText, linkText, linkHref, linkColorWrapper, linkColor,
+      fullMatch, 
+      fontFamilyText, 
+      sizeText, 
+      colorText, 
+      effectText, 
+      contentText, 
+      hrefLink, 
+      fontFamilyLink, 
+      sizeLink, 
+      colorLink, 
+      effectLink, 
+      contentLink,
+      imgSrc, 
+      imgHref, 
+      altText, 
+      // start of someInput
+      // replacement Input
+      replacementInput, 
+      // font
+      inputFont,
+      // size 
+      inputSize,
+      // color
+      inputColor,
+      // displayed input 
+      inputDisplay, 
+      // end of someInput
+      linkColor,
       jsxContent
     ] = match;
-
+    // console.log(match)
     const matchIndex = match.index;
 
     // Push plain text before the match
@@ -39,8 +66,19 @@ const parseContent = (text) => {
       });
     }
 
+    // Handle <updateInput> tag
+    else if (inputDisplay !== undefined) {
+      parts.push({
+        type: 'updateInput',
+        content: inputDisplay,
+        font: inputFont || 'inherit',
+        size: inputSize || 'inherit',
+        color: inputColor || 'inherit',
+        replacementInput: replacementInput,
+      });
+    }
     // Handle <link> tag
-    if (contentLink !== undefined) {
+    else if (contentLink !== undefined) {
       parts.push({
         type: 'link',
         content: contentLink,
@@ -53,22 +91,22 @@ const parseContent = (text) => {
     }
 
     // Handle image match
-    if (imgSrc !== undefined) {
+    else if (imgSrc !== undefined) {
       parts.push({ type: 'image', src: imgSrc, alt: altText, href: imgHref });
     }
 
     // Handle link match
-    if (linkText !== undefined) {
-      parts.push({ type: 'link', content: linkText, href: linkHref, color: linkColor || null });
-    }
+    // else if (linkText !== undefined) {
+      // parts.push({ type: 'link', content: linkText, href: linkHref, color: linkColor || null });
+    // }
 
     // Handle line break
-    if (fullMatch === '<br>') {
+    else if (fullMatch === '<br>') {
       parts.push({ type: 'lineBreak' });
     }
 
     // Handle JSX match
-    if (jsxContent !== undefined) {
+    else if (jsxContent !== undefined) {
       parts.push({ type: 'jsx', content: jsxContent });
     }
 
@@ -91,7 +129,7 @@ const parseContent = (text) => {
 // Your existing `parseContent` function remains unchanged
 
 const Line = ({ content, id }) => {
-  const { removeFromRendering, rendering } = useContext(termContext);
+  const { removeFromRendering, rendering, updateInput } = useContext(termContext);
   const [displayedContent, setDisplayedContent] = useState([]); // Rendered content
   const [currentPartIndex, setCurrentPartIndex] = useState(0); // Current part index
   const [charInCurrentPart, setCharInCurrentPart] = useState(0); // Character index in current part
@@ -206,7 +244,36 @@ const Line = ({ content, id }) => {
           setCurrentPartIndex((prev) => prev + 1);
           setCharInCurrentPart(0);
         }
-      } else {
+      } 
+      
+
+
+      else if (currentPart.type === 'updateInput') {
+        // Append next character of the current text part
+        const nextChar = currentPart.content[charInCurrentPart];
+        setDisplayedContent((prev) => [
+          ...prev,
+          {
+            type: 'updateInput',
+            content: nextChar,
+            color: currentPart.color || 'inherit',
+            font: currentPart.font || 'inherit',
+            size: currentPart.size || 'inherit',
+          },
+        ]);
+        setCharInCurrentPart((prev) => prev + 1);
+
+        // Move to the next part if the current text is complete
+        if (charInCurrentPart + 1 >= currentPart.content.length) {
+          setCurrentPartIndex((prev) => prev + 1);
+          setCharInCurrentPart(0);
+        }
+      }
+
+
+
+      
+      else {
         // Directly append non-text parts (link, image, etc.)
         setDisplayedContent((prev) => [...prev, currentPart]);
         setCurrentPartIndex((prev) => prev + 1);
@@ -234,10 +301,30 @@ const Line = ({ content, id }) => {
                   fontWeight: part.effect === 'bold' ? 'bold' : 'normal',
                   fontStyle: part.effect === 'italic' ? 'italic' : 'normal',
                   textDecoration: part.effect === 'underline' ? 'underline' : 'none',
+                  verticalAlign: 'bottom'
+
                 }}
               >
                 {part.content}
               </span>
+            );
+          } else if (part.type === 'updateInput') {
+            return (
+              <InputUpdate
+                key={idx}
+                style={{
+                  color: part.color,
+                  fontSize: part.size,
+                  fontFamily: part.font,
+                  // fontWeight: part.effect === 'bold' ? 'bold' : 'normal',
+                  // fontStyle: part.effect === 'italic' ? 'italic' : 'normal',
+                  // textDecoration: part.effect === 'underline' ? 'underline' : 'none',
+                  verticalAlign: 'bottom'
+                }}
+                onClick={() => updateInput(part.replacementInput)}
+              >
+                {part.content}
+              </InputUpdate>
             );
           } else if (part.type === 'link') {
             return (
@@ -291,12 +378,32 @@ const Line = ({ content, id }) => {
                   fontWeight: part.effect === 'bold' ? 'bold' : 'normal',
                   fontStyle: part.effect === 'italic' ? 'italic' : 'normal',
                   textDecoration: part.effect === 'underline' ? 'underline' : 'none',
+                  verticalAlign: 'bottom'
                 }}
               >
                 {part.content}
               </span>
             );
-          } else if (part.type === 'link') {
+          }  else if (part.type === 'updateInput') {
+            return (
+              <InputUpdate
+                key={idx}
+                style={{
+                  color: part.color,
+                  fontSize: part.size,
+                  fontFamily: part.font,
+                  // fontWeight: part.effect === 'bold' ? 'bold' : 'normal',
+                  // fontStyle: part.effect === 'italic' ? 'italic' : 'normal',
+                  // textDecoration: part.effect === 'underline' ? 'underline' : 'none',
+                  verticalAlign: 'bottom'
+                }}
+                onClick={() => updateInput(part.replacementInput)}
+              >
+                {part.content}
+              </InputUpdate>
+            );
+          }
+          else if (part.type === 'link') {
             return (
               <LinkTest key={idx}>
                 <a

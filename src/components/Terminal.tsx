@@ -38,19 +38,24 @@ import { useLocation, useNavigate } from 'react-router-dom';
 type Command = {
   cmd: string;
   desc: string;
+  color: string;
   tab: number;
 }[];
 
 export const commands: Command = [
-  { cmd: "test", desc: "testing for debugging", tab: 7 },
-  { cmd: "work", desc: "display prior work", tab: 7 },
-  { cmd: "about", desc: "display information about me", tab: 6 },
-  { cmd: "contact", desc: "display contact information", tab: 4 },
-  { cmd: "projects", desc: "display projects information", tab: 3 },
-  { cmd: "status", desc: `display ${import.meta.env.VITE_FIRSTNAME}'s status`, tab: 5 },
-  { cmd: "guestbook", desc: "view guestbook", tab: 2 },
-  { cmd: "listening", desc: "view listening history", tab: 2 },
-  { cmd: "help", desc: "view possible commands", tab: 7 },
+  { cmd: "test", desc: "testing for debugging", color: "#89DCEB", tab: 7 },
+  { cmd: "work", desc: "display prior work", color: "#94E2D5", tab: 7 },
+  { cmd: "about", desc: "display information about me", color: "#A6E3A1", tab: 6 },
+  { cmd: "contact", desc: "display contact information", color: "#F9E2AF", tab: 4 },
+  { cmd: "projects", desc: "display projects information", color: "#FAB387", tab: 3 },
+  // { cmd: "status", desc: `display ${import.meta.env.VITE_FIRSTNAME}'s status`, color: "#EBA0AC", tab: 5 },
+  { cmd: "guestbook", desc: "view guestbook", color: "#F38BA8", tab: 2 },
+  { cmd: "listening", desc: "view listening history", color: "#CBA6F7", tab: 2 },
+  { cmd: "help", desc: "view possible commands", color: "#B4BEFE", tab: 7 },
+  { cmd: "clear", desc: "Clear commands in this tab", color: "#89B4FA", tab: 6 },
+  // { cmd: "clearAll", desc: "Clear all commands in all tabs ", color: "#74C7EC", tab: 3 },
+  { cmd: "blog", desc: "display most recent blog posts", color: "#89DCEB", tab: 7 },
+  { cmd: "ascii", desc: "display my name in ascii!", color: "#94E2D5", tab: 6 },
 
 ];
 
@@ -198,7 +203,7 @@ export const termContext = createContext<Term>({
   2: {name: "work", color: "#EBA0AC"},
   3: {name: "projects", color: "#89B4FA"},
   4: {name: "contact", color: "#89B4FA"},
-  5: {name: "status", color: "#89B4FA"},
+  5: {name: "blog", color: "#89B4FA"},
   6: {name: "guestbook", color: "#89B4FA"},
 },
   // array for which menus are active
@@ -257,7 +262,7 @@ const Terminal = () => {
     2: {name: "work", color: "#A6E3A1"},
     3: {name: "projects", color: "#F38BA8"},
     4: {name: "contact", color: "#89B4FA"},
-    5: {name: "status", color: "#FAB387"},
+    5: {name: "blog", color: "#FAB387"},
     6: {name: "guestbook", color: "#F9E2AF"},
 },
   );
@@ -314,7 +319,7 @@ const Terminal = () => {
     }], 
     5: [{
       id: 5,
-      input: "status",
+      input: "blog",
       output: 
         [{
         type: "text",
@@ -362,7 +367,7 @@ const Terminal = () => {
       case '/contact':
         setTabId(4);
         break;
-      case '/status':
+      case '/blog':
         setTabId(5);
         break;
       case '/guestbook':
@@ -411,13 +416,16 @@ const Terminal = () => {
 
   
 
-  // const updateInput = (inputVal: string) => {
-  //   let newInputs = inputs;
-  //   setInputVal(inputVal)
-  //   setSuggestions([])
-  //   setSuggestion("")
-  //   setSuggestionPointer(-1)
-  // }
+  const updateInput = (inputVal: string) => {
+    const newInputs = { ...inputs, [tabId]: inputVal };
+    const newSuggestions = { ...suggestions };
+    newSuggestions[tabId].suggestionsPossible = []
+    const newPointers = {... pointers};
+    newPointers[tabId] = -1;
+    setPointers(newPointers);
+    setInputs(newInputs)
+    setSuggestions(newSuggestions)
+  }
 
   // const updateInputWithTabChange = (inputVal: string) => {
   //   setInputVal(inputVal)
@@ -485,6 +493,18 @@ const Terminal = () => {
     const newSuggestions = {... suggestions};
     newSuggestions[tabId].suggestionPointer = -1
     newSuggestions[tabId].suggestionText = ""
+    if (inputs[tabId] === "clear" ){
+      console.log(newCmdHistory)
+      const updatedCmdHistory = {... newCmdHistory}
+      updatedCmdHistory[tabId] = []
+
+      setNewCmdHistory(updatedCmdHistory)
+      setSuggestions(newSuggestions)
+      setPointers(newPointers);
+      setInputs(newInputs)
+      setHints([]);
+      return
+    }
     setNewCmdHistory(getNewCmdHistory(inputs[tabId]))
     setSuggestions(newSuggestions)
     setPointers(newPointers);
@@ -499,8 +519,8 @@ const Terminal = () => {
   };
 
   const updateMenusActive = (newMenu: boolean[]) => {
-    console.log("PROPS PASSED TO IT ARE")
-    console.log(newMenu)
+    // console.log("PROPS PASSED TO IT ARE")
+    // console.log(newMenu)
     setMenusActive(newMenu);
   };
   const navigate = useNavigate();
@@ -535,7 +555,7 @@ const Terminal = () => {
   // Keyboard Press
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     setRerender(false);
-    console.log(e.key)
+    // console.log(e.key)
     const ctrlI = e.ctrlKey && e.key.toLowerCase() === "i";
     const ctrlL = e.ctrlKey && e.key.toLowerCase() === "l";
 
@@ -592,7 +612,7 @@ const Terminal = () => {
       // setInputVal(newCmdHistory[tabId][pointer + 1].input);
       setPointers(newPointers);
       inputRef?.current?.blur();
-      console.log(newPointers[tabId])
+      // console.log(newPointers[tabId])
     }
 
     // Go next cmd
@@ -649,7 +669,7 @@ const Terminal = () => {
     menusActive: menusActive,
     updateTabId,
     updateMenusActive,
-    // updateInput
+    updateInput
   };
  
   return (

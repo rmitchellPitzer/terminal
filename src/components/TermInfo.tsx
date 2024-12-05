@@ -6,7 +6,7 @@ const TermInfo = () => {
 
   return (
     <Wrapper>
-      <CatBlue>visitor</CatBlue> <CatRed>~Portfolio{location.pathname}</CatRed> <CatOrange>git:({import.meta.env.VITE_FIRSTNAME}The.dev)</CatOrange>:
+      <CatBlue>visitor</CatBlue> <CatRed>~Portfolio{location.pathname}</CatRed> <CatOrange>git:(rileyis.online)</CatOrange>:
       {/* visitor ~Portfolio/home git:(Ryder):  */}
     </Wrapper>
   );

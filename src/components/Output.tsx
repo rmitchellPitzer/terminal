@@ -11,6 +11,8 @@ import Status from "./commands/Status";
 import GuestBook from "./commands/GuestBook";
 import Listening from "./commands/Listening";
 import Help from "./commands/Help";
+import Blog from "./commands/Blog";
+import Ascii from "./commands/Ascii";
 type Props = {
   index: number;
   cmd: string;
@@ -44,10 +46,13 @@ const renderCommand = (cmd) => {
     case 'about': return <About id={id} />;
     case 'contact': return <Contact id={id} />;
     case 'projects': return <Projects id={id} />;
-    case 'status': return <Status id={id} />;
+    // case 'status': return <Status id={id} />;
     case 'guestbook': return <GuestBook id={id} />;
     case 'listening': return <Listening id={id} />;
     case 'help': return <Help id={id} />;
+    case 'blog': return <Blog id={id} />;
+    case 'ascii': return <Ascii id={id} />;
+
 
     default: return null;
   }

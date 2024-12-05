@@ -69,3 +69,20 @@ export const Suggestion = styled.div`
 export const Hints = styled.span`
   margin-right: 0.875rem;
 `;
+
+export const InputUpdate = styled.span`
+  text-underline-offset: 2px;
+  transition-duration: 100ms;
+  text-decoration: underline;
+
+&:hover {
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+
+&:focus, &:active {
+  text-underline-offset: 2px;  /* Reset to initial state when clicked or focused */
+  cursor: pointer;
+
+}
+`;

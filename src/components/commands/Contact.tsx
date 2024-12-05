@@ -10,13 +10,13 @@ const Contact: React.FC =  memo((id: number) => {
     Send me a message, I don't byte!
     <br>
     <text color:#74C7EC>Github: </text>
-    <link href="https://www.google.com" color:#74C7EC>rmitchellpitzer</link>,
+    <link href="https://github.com/rmitchellPitzer" color:#74C7EC>rmitchellpitzer</link>,
     <br>
-    <text color:#89DCEB>LinkedIn: </text>
-    <link href="https://www.google.com" color:#89DCEB>rmitche</link>,
+    <text color:#F5C2E7>LinkedIn: </text>
+    <link href="https://www.linkedin.com/in/rmitche/" color:#F5C2E7>rmitche</link>,
     <br>
     <text color:#95CA93>Email: </text>
-    <link href="https://www.google.com" color:#95CA93>rmitche@pitzer.edu</link>.
+    <link href="mailto:rmitche@pitzer.edu" color:#95CA93>rmitche@pitzer.edu</link>.
     <br>
     `
 

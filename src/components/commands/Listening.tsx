@@ -38,8 +38,8 @@ const Listening: React.FC =  memo((id: number) => {
       fetch(lastFmUrl)
         .then(response => response.json())
         .then(data => {
-            console.log("ID IS")
-            console.log(id)
+            // console.log("ID IS")
+            // console.log(id)
             setArtistData(data.recenttracks.track[0].artist[`#text`]);
             setAlbumData(data.recenttracks.track[0].album[`#text`]);
             setSongData(data.recenttracks.track[0]['name']);
