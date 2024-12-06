@@ -8,7 +8,7 @@ import { DefaultTheme } from "styled-components";
 
 
 export const useHistory = () => {
-  const [theme, setTheme] = useState<DefaultTheme>(themes.dark);
+  const [theme, setTheme] = useState<DefaultTheme>(themes.catppuccin);
   const [themeLoaded, setThemeLoaded] = useState(false);
 
   const setMode = (mode: DefaultTheme) => {
@@ -18,7 +18,7 @@ export const useHistory = () => {
 
   useEffect(() => {
     const localThemeName = getFromLS("tsn-theme");
-    localThemeName ? setTheme(themes[localThemeName]) : setTheme(themes.dark);
+    localThemeName ? setTheme(themes[localThemeName]) : setTheme(themes.catppuccin);
     setThemeLoaded(true);
   }, []);
 

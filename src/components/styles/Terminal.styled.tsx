@@ -21,8 +21,11 @@ export const Empty = styled.div`
 `;
 
 export const MobileSpan = styled.span`
-  line-height: 2px;
+  line-height: 1.6;
   margin-right: 0.75rem;
+  @media (min-width: 1040px) {
+    display: none;
+  }
 `;
 
 export const MobileBr = styled.br`
@@ -35,34 +38,55 @@ export const Form = styled.form`
   display: flex;
   flex-direction: row;
   align-content: flex-start;
-  width: calc(100% - 400px);
-  flex-wrap: wrap;
+  // width: calc(100% - 400px);
+  // flex-wrap: wrap;
+  @media (max-width: 1040px) {
+    flex-direction: column;
+  }
+      // white-space: nowrap;
+  min-width: 0;
+
 `;
 
 export const Input = styled.input`
-  position: absolute;
+  position: relative
   border: none;
-  z-index: 1;
-  top: 0;
-  left: 30px;
+  z-index: -0;
+  // top: 0;
+  // left: 30px;
   line-height: 1.15;
   padding-inline: 2px;
   padding-block: 1px;
-  width: calc(100% - 30px);  
+  // width: calc(100% - 30px);  
+  // will-change: transform;
+  
+  // updated dimensions
+
+  min-width: 0;
+  width: 100%;
+  height: 39px;
+  // margin-bottom: -40px;
+  margin-top: 0px;
 `;
-
-
 export const Suggestion = styled.div`
-  position: absolute;
-  top: 0;
-  left: 30px;
-  z-Index: 0; 
+  position: relative  
+  // top: 0;
+  // left: 30px;
+  z-Index: -5; 
   line-height: 1.15;
   overflow: hidden;
   padding-inline: 2px;
   padding-block: 1px;
   color: #7F849C;
-  width: calc(100% - 30px);  
+  // width: calc(100% - 30px);  
+
+  // updated dimensions
+
+  // will-change: transform;
+  height: 39px;
+  width: 100%;
+
+  margin-top: -36.5px;
 
 `;
 

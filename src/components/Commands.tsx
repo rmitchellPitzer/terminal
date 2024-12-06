@@ -7,7 +7,7 @@ import { CmdNotFound, Empty, MobileBr, MobileSpan } from './styles/Terminal.styl
 import Output from './Output';
 // import Test from './commands/Test';
 import React, { useContext } from 'react';
-import { CatLavender } from './styles/TerminalInfo.styled';
+import { CatLavender, PrevCommand } from './styles/TerminalInfo.styled';
 import TermInfoCommand from './TermInfoCommand';
 
 // const renderCommand = (cmd, index) => {
@@ -36,7 +36,7 @@ const Commands = React.memo(() => {
                 <TermInfo />
                 {/* <MobileBr /> */}
                 {/* <MobileSpan>&#62;</MobileSpan> */}
-                <CatLavender>{cmdH.input}</CatLavender>
+                <PrevCommand>{cmdH.input}</PrevCommand>
                 {validCommand ? (
             //   <termContext.Provider value={cmdHistory:tabId}>
                 <Output index={index} cmd={commandArray[0]} id={cmdH.id} />

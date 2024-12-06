@@ -231,7 +231,7 @@ const Terminal = () => {
   const [commandId, setCommandId] = useState<number>(2);
   const [menusActive, setMenusActive] = useState<boolean[]>([false, false])
 
-  const [inputs, setInputs] = useState<Inputs>({0: "", 1: "", 2: "", 3: "", 4: "", 5: "", 6: ""})
+  const [inputs, setInputs] = useState<Inputs>({0: "", 1: "", 2: "", 3: "", 4: "", 5: "", 6: "dadadasdasdasdasdasdasdasdsdadadasdasdasdasdasdasdasds"})
   const [suggestions, setSuggestions] = useState<Suggestions>({
     0: {suggestionText: "",
       suggestionPointer: -1,
@@ -684,22 +684,80 @@ const Terminal = () => {
       </termContext.Provider>
     {/* <TermContainer> */}
       <Wrapper data-testid="terminal-wrapper" ref={containerRef}>
-        <Form style={{width: menusActive[0] ? "calc(100% - 400px)" : "100%"}} id="formUsed" onSubmit={handleSubmit}>
+        <Form id="formUsed" onSubmit={handleSubmit}>
           <TermInfo /> 
           <MobileBr />
+          <div 
+          style={{
+            // position: "relative", 
+          //   flexShrink: "1",
+            // flexGrow: "1",
+            // flex: "1 1 100px",
+            // minWidth: "200px",
+          //   whiteSpace: "nowrap",
+          //   minWidth: "200px",
+          //   marginBottom: "40px",
+          //   height: "0px",
+          //   display: "inline-block",
 
-          <div style={{
-            position: "relative", 
-            flexShrink: "1",
-            flexGrow: "1",
-            whiteSpace: "nowrap",
-            minWidth: "200px",
-            marginBottom: "40px",
-            height: "0px",
-            display: "inline-block"
-          }}>
-              <MobileSpan>&#62;</MobileSpan>
-            <Input
+          // new stuff:
+          // position: "sticky"
+          // position: "relative",
+          // transform: "translateZ(0)"
+        //   display: "flex",
+        // alignItems: "center", // Align input and suggestion vertically
+        // minWidth: "200px",
+        // marginBottom: "40px",
+        display: "flex",
+        flexDirection: "column",
+        float: "left",
+        minWidth: "0px",
+        height: "39px",
+        width: "stretch",
+        flexGrow: "1"
+
+        // width: "100%"
+          }}
+          >
+            <div style={{display: "flex", flexDirection: "row"}}>
+                          <MobileSpan>&#62;</MobileSpan>
+            
+              
+                          <div 
+          style={{
+            // position: "relative", 
+          //   flexShrink: "1",
+            // flexGrow: "1",
+            // flex: "1 1 100px",
+            // minWidth: "200px",
+          //   whiteSpace: "nowrap",
+          //   minWidth: "200px",
+          //   marginBottom: "40px",
+          //   height: "0px",
+          //   display: "inline-block",
+
+          // new stuff:
+          // position: "sticky"
+          // position: "relative",
+          // transform: "translateZ(0)"
+        //   display: "flex",
+        // alignItems: "center", // Align input and suggestion vertically
+        // minWidth: "200px",
+        // marginBottom: "40px",
+        display: "flex",
+        flexDirection: "column",
+        float: "left",
+        minWidth: "0px",
+        height: "39px",
+        width: "stretch",
+        flexGrow: "1"
+
+        // width: "100%"
+          }}
+          >
+              {/* { suggestions[tabId].suggestionPointer > -1 && (<Suggestion>{
+              suggestions[tabId].suggestionsPossible[suggestions[tabId].suggestionPointer]}</Suggestion>)} */}
+              <Input
               title="terminal-input"
               type="text"
               id="terminal-input"
@@ -714,8 +772,10 @@ const Terminal = () => {
               style={{background: "transparent"}}
 
             />
-              { suggestions[tabId].suggestionPointer > -1 && (<Suggestion>{
+             { suggestions[tabId].suggestionPointer > -1 && (<Suggestion>{
               suggestions[tabId].suggestionsPossible[suggestions[tabId].suggestionPointer]}</Suggestion>)}
+            </div>
+            </div>
           </div>
         </Form>
         <termContext.Provider value={contextValue}>

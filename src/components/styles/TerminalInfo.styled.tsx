@@ -4,6 +4,11 @@ export const Wrapper = styled.span`
   margin-right: 0.75rem;
   // flex-grow: 1;
   flex-shrink: 1;
+  white-space: normal;
+  white-space: normal;
+  @media (min-width: 1040px) {
+    white-space: nowrap;
+  }
 `;
 
 export const WrapperCommand = styled.span`
@@ -32,4 +37,9 @@ export const CatOrange = styled.span`
 
 export const CatLavender = styled.span`
   color: #B4BEFE
+`
+
+export const PrevCommand = styled.span`
+  color: #B4BEFE;
+  text-overflow:ellipsis;
 `
