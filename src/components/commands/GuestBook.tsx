@@ -46,13 +46,13 @@ const GuestBook: React.FC =  memo((id: number) => {
           
               // Output the messages
               setMessages(messages)
-              console.log("MESSAGES ARE ")
-              console.log(messages)
+            //   console.log("MESSAGES ARE ")
+            //   console.log(messages)
               messages.forEach((msg) => {
-                console.log(`Author: ${msg.author}`);
-                console.log(`Time: ${msg.time} (Data Time: ${msg.dataTime})`);
-                console.log(`Message: ${msg.text}`);
-                console.log("-".repeat(40));
+                // console.log(`Author: ${msg.author}`);
+                // console.log(`Time: ${msg.time} (Data Time: ${msg.dataTime})`);
+                // console.log(`Message: ${msg.text}`);
+                // console.log("-".repeat(40));
               });
             } catch (error) {
               console.error("Error fetching or parsing data:", error);

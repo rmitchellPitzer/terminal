@@ -231,7 +231,7 @@ const Terminal = () => {
   const [commandId, setCommandId] = useState<number>(2);
   const [menusActive, setMenusActive] = useState<boolean[]>([false, false])
 
-  const [inputs, setInputs] = useState<Inputs>({0: "", 1: "", 2: "", 3: "", 4: "", 5: "", 6: "dadadasdasdasdasdasdasdasdsdadadasdasdasdasdasdasdasds"})
+  const [inputs, setInputs] = useState<Inputs>({0: "", 1: "", 2: "", 3: "", 4: "", 5: "", 6: ""})
   const [suggestions, setSuggestions] = useState<Suggestions>({
     0: {suggestionText: "",
       suggestionPointer: -1,
