@@ -5,7 +5,12 @@ on:
     branches:
       - main
 env:
-  VITE_INTERNAL: true
+  VITE_FIRSTNAME: true
+  VITE_LASTNAME: true
+  VITE_LASTFMAPIKEY: true
+  VITE_LASTFMUSERNAME: true
+  VITE_GUESTBOOKURL: true
+  VITE_CORSPROXYURL: true
 
 jobs:
   build:
