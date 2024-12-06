@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+env:
+  VITE_INTERNAL: true
 
 jobs:
   build:
@@ -22,14 +24,6 @@ jobs:
 
       - name: Build project
         run: npm run build
-        env:
-          VITE_FIRSTNAME: ${{ secrets.VITE_FIRSTNAME }}
-          VITE_LASTNAME: ${{ secrets.VITE_LASTNAME }}
-          VITE_LASTFMAPIKEY: ${{ secrets.VITE_LASTFMAPIKEY }}
-          VITE_LASTFMUSERNAME: ${{ secrets.VITE_LASTFMUSERNAME }}
-          VITE_GUESTBOOKURL: ${{ secrets.VITE_GUESTBOOKURL }}
-          VITE_CORSPROXYURL: ${{ secrets.VITE_CORSPROXYURL }}
-          REACT_APP_FIREBASE_API_KEY: ${{ secrets.REACT_APP_FIREBASE_API_KEY }}
 
       - name: Upload production-ready build files
         uses: actions/upload-artifact@v3
