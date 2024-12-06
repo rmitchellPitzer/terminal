@@ -1,7 +1,7 @@
 import styled from "styled-components";
 export const LinkTest = styled.a`
   text-underline-offset: 2px;
-  transition-duration: 100ms;
+  transition-duration: 150ms;
 
 &:hover {
   text-underline-offset: 4px;

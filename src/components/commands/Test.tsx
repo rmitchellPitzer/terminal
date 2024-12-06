@@ -25,9 +25,7 @@ import Line from "./Line";
 
 
 const inputText = String.raw`
-Hello! My name is [<text color:#F38BA8>${import.meta.env.VITE_FIRSTNAME}</text> <text color:#F38BA8>${import.meta.env.VITE_LASTNAME}</text>], i am a <text color:#89B4FA>CS</text> <text color:#89B4FA>major</text> from <text color:#F9E2AF>Claremont,</text> <text color:#F9E2AF>CA</text>. I’m particularly interested in 
-<text color:#74C7EC>React</text>, <text color:#F5C2E7>GraphQL</text>, <text color:#94E2D5>Node.JS</text>, and  <text color:#A6E3A1>Spring</text>. <br><br>
-Use the [<updateinput input:"help" color:#F38BA8>help</updateinput>] command to see the available commands! There’s plenty of fun things to do here!
+Hello! My name is [<text color:#F38BA8>${import.meta.env.VITE_FIRSTNAME}</text> <text color:#F38BA8>${import.meta.env.VITE_LASTNAME}</text>], i am a <text color:#89B4FA>CS</text> <text color:#89B4FA>major</text> from <text color:#F9E2AF>Claremont,</text> <text color:#F9E2AF>CA</text>. I’m particularly interested in <text color:#74C7EC>React</text>, <text color:#F5C2E7>GraphQL</text>, <text color:#94E2D5>Node.JS</text>, and  <text color:#A6E3A1>Spring</text>. <br><br>Use the [<updateinput input:"help" color:#F38BA8>help</updateinput>] command to see the available commands! There’s plenty of fun things to do here!
 <br><br><br><br>
 `
 

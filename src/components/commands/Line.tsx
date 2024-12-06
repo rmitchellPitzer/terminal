@@ -328,16 +328,16 @@ const Line = ({ content, id }) => {
             );
           } else if (part.type === 'link') {
             return (
-              <LinkTest key={idx}>
-                <a
-                  href={part.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ color: part.color || 'blue', transitionDuration: '200ms' }}
-                >
-                  {part.content}
-                </a>
-              </LinkTest>
+              // <LinkTest key={idx}>
+              <LinkTest key={idx}
+              href={part.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: part.color || 'blue'}}
+            >
+              {part.content}
+            {/* </a> */}
+          </LinkTest>
             );
           // } else if (part.type === 'image') {
           //   return (
@@ -405,15 +405,15 @@ const Line = ({ content, id }) => {
           }
           else if (part.type === 'link') {
             return (
-              <LinkTest key={idx}>
-                <a
+              <LinkTest key={idx}
                   href={part.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{ color: part.color || 'blue', transitionDuration: '200ms' }}
+                  style={{ color: part.color || 'blue'}}
+    
                 >
                   {part.content}
-                </a>
+                {/* </a> */}
               </LinkTest>
             );
           } else if (part.type === 'image') {
@@ -434,10 +434,10 @@ const Line = ({ content, id }) => {
             );
           } else if (part.type === 'lineBreak') {
             return <br key={idx} />;
-          } else if (part.type === 'jsx') {
-            return (
-              <div key={idx} dangerouslySetInnerHTML={{ __html: part.content }} />
-            );
+          // } else if (part.type === 'jsx') {
+          //   return (
+          //     <div key={idx} dangerouslySetInnerHTML={{ __html: part.content }} />
+          //   );
           } else {
             return null;
           }
