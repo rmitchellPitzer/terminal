@@ -13,6 +13,7 @@ export default defineConfig({
       registerType: "autoUpdate",
     }),
   ],
+  base: "/terminal/"
   // test: {
   //   globals: true,
   //   environment: 'jsdom',
