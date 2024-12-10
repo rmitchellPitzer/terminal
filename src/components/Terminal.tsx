@@ -750,7 +750,8 @@ const Terminal = () => {
         minWidth: "0px",
         height: "39px",
         width: "stretch",
-        flexGrow: "1"
+        flexGrow: "1",
+        
 
         // width: "100%"
           }}

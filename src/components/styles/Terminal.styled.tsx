@@ -49,7 +49,7 @@ export const Form = styled.form`
 `;
 
 export const Input = styled.input`
-  position: relative
+  // position: relative
   border: none;
   z-index: -0;
   // top: 0;
@@ -67,9 +67,10 @@ export const Input = styled.input`
   height: 39px;
   // margin-bottom: -40px;
   margin-top: 0px;
+  translate3d(0px,0px,0px);
 `;
 export const Suggestion = styled.div`
-  position: relative  
+  // position: relative  
   // top: 0;
   // left: 30px;
   z-Index: -5; 
@@ -87,7 +88,7 @@ export const Suggestion = styled.div`
   width: 100%;
 
   margin-top: -36.5px;
-
+  translate3d(0px,0px,0px);
 `;
 
 export const Hints = styled.span`
