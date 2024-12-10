@@ -280,7 +280,7 @@ input[type=range]:focus::-ms-fill-upper {
   min-width: 0;
 
 `,ak=Ce.input`
-  position: relative
+  // position: relative
   border: none;
   z-index: -0;
   // top: 0;
@@ -298,8 +298,9 @@ input[type=range]:focus::-ms-fill-upper {
   height: 39px;
   // margin-bottom: -40px;
   margin-top: 0px;
+  translate3d(0px,0px,0px);
 `,ok=Ce.div`
-  position: relative  
+  // position: relative  
   // top: 0;
   // left: 30px;
   z-Index: -5; 
@@ -317,7 +318,7 @@ input[type=range]:focus::-ms-fill-upper {
   width: 100%;
 
   margin-top: -36.5px;
-
+  translate3d(0px,0px,0px);
 `;Ce.span`
   margin-right: 0.875rem;
 `;const T_=Ce.span`
